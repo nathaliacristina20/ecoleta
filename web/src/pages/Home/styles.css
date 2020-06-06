@@ -1,7 +1,13 @@
 #page-home {
   height: 100vh;
 
-  background: url('../../assets/home-background.svg') no-repeat 600px bottom;
+  background: url('../../assets/home-background.svg') no-repeat 700px bottom;
+}
+
+@media only screen and (min-width: 1800px) {
+  #page-home {
+      background: url('../../assets/home-background.svg') no-repeat 1100px bottom;
+  }
 }
 
 #page-home .content {
