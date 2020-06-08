@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {
@@ -10,14 +10,59 @@ import {
   TouchableOpacity,
   Text,
   SafeAreaView,
+  Linking,
 } from 'react-native';
 import {RectButton} from 'react-native-gesture-handler';
+import api from '../../services/api';
 
+interface Params {
+  point_id: number;
+}
+
+interface Data {
+  point: {
+    image: string;
+    name: string;
+    email: string;
+    whatsapp: string;
+    city: string;
+    uf: string;
+  };
+  items: {
+    title: string;
+  }[];
+}
 const Detail = () => {
   const navigation = useNavigation();
 
-  function handlenavigateBack() {
+  const handlenavigateBack = useCallback(() => {
     navigation.goBack();
+  }, [navigation]);
+
+  const route = useRoute();
+
+  const routeParams = route.params as Params;
+
+  const [data, setData] = useState<Data>({} as Data);
+
+  useEffect(() => {
+    async function loadDetails() {
+      const response = await api.get(`points/${routeParams.point_id}`);
+      setData(response.data);
+    }
+    loadDetails();
+  }, [routeParams]);
+
+  const handleWhatsapp = useCallback(() => {
+    Linking.openURL(
+      `whatsapp://send?phone=${data.point.whatsapp}&text=Tenho interesse sobre coleta de residuos`,
+    );
+  }, [data]);
+
+  const handleComposeMail = useCallback(async () => {}, []);
+
+  if (!data.point) {
+    return null;
   }
 
   return (
@@ -29,24 +74,25 @@ const Detail = () => {
         <Image
           style={styles.pointImage}
           source={{
-            uri:
-              'https://img.estadao.com.br/resources/jpg/8/8/1581881728288.jpg',
+            uri: data.point.image,
           }}
         />
-        <Text style={styles.pointName}>Mercado Atacadao</Text>
-        <Text style={styles.pointItems}>Lampadas, pilhas</Text>
+        <Text style={styles.pointName}>{data.point.name}</Text>
+        <Text style={styles.pointItems}>
+          {data.items.map((item) => item.title).join(', ')}
+        </Text>
         <View style={styles.address}>
-          <Text style={styles.addressTitle}>Endereco</Text>
-          <Text style={styles.addressContent}>Sao Paulo</Text>
+          <Text style={styles.addressTitle}>{data.point.city}</Text>
+          <Text style={styles.addressContent}>{data.point.uf}</Text>
         </View>
       </View>
       <View style={styles.footer}>
-        <RectButton style={styles.button} onPress={() => {}}>
+        <RectButton style={styles.button} onPress={handleWhatsapp}>
           <FontAwesome name="whatsapp" size={20} color="#fff" />
           <Text style={styles.buttonText}>Whatsapp</Text>
         </RectButton>
 
-        <RectButton style={styles.button} onPress={() => {}}>
+        <RectButton style={styles.button} onPress={handleComposeMail}>
           <Icon name="mail" size={20} color="#fff" />
           <Text style={styles.buttonText}>E-mail</Text>
         </RectButton>
@@ -73,12 +119,12 @@ const styles = StyleSheet.create({
   pointName: {
     color: '#322153',
     fontSize: 28,
-    fontFamily: 'Ubuntu_700Bold',
+    fontFamily: 'Ubuntu-Bold',
     marginTop: 24,
   },
 
   pointItems: {
-    fontFamily: 'Roboto_400Regular',
+    fontFamily: 'Roboto-Regular',
     fontSize: 16,
     lineHeight: 24,
     marginTop: 8,
@@ -91,12 +137,12 @@ const styles = StyleSheet.create({
 
   addressTitle: {
     color: '#322153',
-    fontFamily: 'Roboto_500Medium',
+    fontFamily: 'Roboto-Medium',
     fontSize: 16,
   },
 
   addressContent: {
-    fontFamily: 'Roboto_400Regular',
+    fontFamily: 'Roboto-Regular',
     lineHeight: 24,
     marginTop: 8,
     color: '#6C6C80',
@@ -125,7 +171,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     color: '#FFF',
     fontSize: 16,
-    fontFamily: 'Roboto_500Medium',
+    fontFamily: 'Roboto-Medium',
   },
 });
 

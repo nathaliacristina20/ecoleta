@@ -2,6 +2,7 @@
   package="com.mobile">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
       android:name=".MainApplication"
@@ -22,7 +23,7 @@
         </intent-filter>
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
-      <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyC-5PIokt-jh1U3-5dshtXQVRhC1h3nJr0"/>
+      <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyC-5PIokt-jh1U3-5dshtXQVRhC1h3nJr0"/>      
     </application>
 
 </manifest>
